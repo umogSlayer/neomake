@@ -71,22 +71,19 @@ jobs:
     <<: *common
     steps:
       - checkout
-      - run: make --keep-going check check_docker check_lint_diff
+      - run:
+          name: Check qs
+          command: |
+            set -x
+            python -m ensurepip --user
+            PATH=$HOME/.local/bin:$PATH
+            pip3 install --user -U 'vim-vint>=0.4a1'
+            vint --version
+            make --keep-going check check_docker check_lint_diff
+            set +x
 
 workflows:
   version: 2
   test:
     jobs:
-      - nvim-030
-      - nvim-022
-      - nvim-master
-      - nvim-021
-      - nvim-020
-      - nvim-017
-      - vim-8.0.1832
-      - vim-8.0.586
-      - vim-master
-      - vim-74-xenial
-      - vim-74-trusty
-      - vim-73
       - checkqa
