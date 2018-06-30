@@ -66,10 +66,12 @@ else
         " http://stackoverflow.com/questions/17751186/iterating-over-a-string-in-vimscript-or-parse-a-json-file/19105763#19105763
         " A hat tip to Marc Weber for this trick
         if substitute(a:json, '\v\"%(\\.|[^"\\])*\"|true|false|null|[+-]?\d+%(\.\d+%([Ee][+-]?\d+)?)?', '', 'g') !~# "[^,:{}[\\] \t]"
+            " vint: -ProhibitUnusedVariable
             " JSON artifacts
             let true = g:neomake#compat#json_true
             let false = g:neomake#compat#json_false
             let null = g:neomake#compat#json_null
+            " vint: +ProhibitUnusedVariable
 
             try
                 let object = eval(a:json)
