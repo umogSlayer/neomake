@@ -103,6 +103,9 @@ function! s:clean_qf_annotations() abort
     endif
 endfunction
 
+" TODO: scroll window with buffer optionally? (if visible)
+" TODO: mark it fixed already somethow?  (sign, and internally; so that it
+"       would not get ignored multiple times, as in "# noqa  # noqa").
 function! s:fix_entry(action) abort
     let idx = line('.')-1
     let entry = getloclist(0)[idx]

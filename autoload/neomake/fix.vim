@@ -124,10 +124,32 @@ function! neomake#fix#entry(action, entry) abort
                 endif
             endif
 
-            " elseif action ==# 'append'
-            "     let [lnum, lines] = args
-            "     call neomake#log#info(printf('%s: fix: appending %d lines after line %d.', maker.name, len(lines), lnum), {'bufnr': a:entry.bufnr})
-            "     call append(lnum, lines)
+        " elseif action ==# 'append'
+        "     let [lnum, lines] = args
+        "     call neomake#log#info(printf('%s: fix: appending %d lines after line %d.', maker.name, len(lines), lnum), {'bufnr': a:entry.bufnr})
+        "     call append(lnum, lines)
+
+
+        " TODO: wrap into compat functions(s), and refactor.
+        " Related: https://github.com/neomake/neomake/pull/1776
+        elseif action ==# 'append_to_line'
+            let [lnum, append] = args
+
+            if exists('*nvim_buf_get_lines')
+                let old = nvim_buf_get_lines(a:entry.bufnr, lnum-1, lnum, 1)[0]
+            else
+                let old = getline(lnum)
+            endif
+
+            let new = old . append
+
+            call neomake#log#info(printf('%s: fixed %s => %s (line %d).', maker.name, string(old), string(new), lnum), {'bufnr': a:entry.bufnr})
+
+            if exists('*nvim_buf_get_lines')
+                call nvim_buf_set_lines(a:entry.bufnr, lnum-1, lnum, 1, [new])
+            else
+                call setline(lnum, new)
+            endif
 
         else
             throw 'Neomake: unknown fixer action: '.action
