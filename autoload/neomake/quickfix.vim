@@ -223,8 +223,8 @@ function! neomake#quickfix#FormatQuickfix() abort
     endif
     call neomake#quickfix#set_syntax(syntax)
 
-    nnoremap F :call <SID>fix_entry('fix')<CR>
-    nnoremap I :call <SID>fix_entry('ignore')<CR>
+    nnoremap <buffer> F :call <SID>fix_entry('fix')<CR>
+    nnoremap <buffer> I :call <SID>fix_entry('ignore')<CR>
 
     if maker_width + lnum_width + col_width > 0
         let b:neomake_start_col = maker_width + lnum_width + col_width + 2
