@@ -103,6 +103,31 @@ function! s:clean_qf_annotations() abort
     endif
 endfunction
 
+function! s:fix_entry(action) abort
+    let idx = line('.')-1
+    let entry = getloclist(0)[idx]
+
+    let maker_info = {}
+    let maker_info_idx = -1
+
+    for i in keys(b:_neomake_info)
+        if i <= idx
+            let maker_info_idx = i
+        endif
+    endfor
+    if maker_info_idx == -1
+        call neomake#log#error('Could not find maker info.')
+        return
+    endif
+
+    let maker_info = b:_neomake_info[maker_info_idx]
+
+    " XXX: we would need the maker instance here.
+    " It was created already, and tedious to get by name from qf window.
+    let entry.maker_name = maker_info.name
+
+    call neomake#fix#entry(a:action, entry)
+endfunction
 
 function! neomake#quickfix#FormatQuickfix() abort
     let buf = bufnr('%')
@@ -150,8 +175,11 @@ function! neomake#quickfix#FormatQuickfix() abort
     let lnum_width = 0
     let col_width = 0
     let maker_width = 0
-    let maker = {}
+    let maker_info = {}
     let makers = []
+
+    " Store evaluated maker info with list entries.
+    let b:_neomake_info = {}
 
     for item in qflist
         " Look for marker at end of entry.
@@ -160,9 +188,10 @@ function! neomake#quickfix#FormatQuickfix() abort
             if idx != -1
                 let config = item.text[idx+7:]
                 try
-                    let maker = eval(config)
-                    if index(makers, maker.name) == -1
-                        call add(makers, maker.name)
+                    let maker_info = eval(config)
+                    let b:_neomake_info[i] = maker_info
+                    if index(makers, maker_info.name) == -1
+                        call add(makers, maker_info.name)
                     endif
                     let item.text = idx == 0 ? '' : item.text[:(idx-1)]
                 catch
@@ -173,7 +202,7 @@ function! neomake#quickfix#FormatQuickfix() abort
             endif
         endif
 
-        let item.maker_name = get(maker, 'short', '????')
+        let item.maker_name = get(maker_info, 'short', '????')
         let maker_width = max([len(item.maker_name), maker_width])
 
         if item.lnum
@@ -193,6 +222,9 @@ function! neomake#quickfix#FormatQuickfix() abort
         endfor
     endif
     call neomake#quickfix#set_syntax(syntax)
+
+    nnoremap F :call <SID>fix_entry('fix')<CR>
+    nnoremap I :call <SID>fix_entry('ignore')<CR>
 
     if maker_width + lnum_width + col_width > 0
         let b:neomake_start_col = maker_width + lnum_width + col_width + 2
