@@ -27,8 +27,9 @@ function! s:shellcheck.fix_entry(entry, action) abort
     elseif a:action ==# 'ignore'
         " return [['append', a:entry.lnum - 1, [
         "             \ printf('# shellcheck disable=SC%d', a:entry.nr)]]]
+        let indent = matchstr(neomake#compat#buf_get_lines(a:entry.bufnr, a:entry.lnum, a:entry.lnum+1)[0], '\v^\s+')
         return [['setlines', a:entry.lnum, a:entry.lnum, [
-                    \ printf('# shellcheck disable=SC%d', a:entry.nr)]]]
+                    \ printf('%s# shellcheck disable=SC%d', indent, a:entry.nr)]]]
     endif
 endfunction
 
