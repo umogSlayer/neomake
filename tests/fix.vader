@@ -195,7 +195,7 @@ Execute (Fix can be applied from quickfix mapping (ignore)):
     CallNeomake 1, [maker]
 
     lopen
-    call feedkeys('I', 'mx')
+    normal I
 
     wincmd p
     if exists('*nvim_buf_set_lines')
@@ -232,7 +232,7 @@ Execute (Fix can be applied from quickfix mapping (fix)):
     CallNeomake 1, [maker]
 
     lopen
-    call feedkeys('F', 'mx')
+    normal F
 
     wincmd p
     if exists('*nvim_buf_set_lines')
