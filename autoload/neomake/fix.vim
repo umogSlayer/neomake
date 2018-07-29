@@ -89,40 +89,7 @@ function! neomake#fix#entry(action, entry) abort
                 call neomake#log#info(printf('%s: fixed %s => %s (line %d).', maker.name, string(old), string(replacement[0]), start), {'bufnr': a:entry.bufnr})
             endif
 
-            if exists('*nvim_buf_set_lines')
-                try
-                    call nvim_buf_set_lines(a:entry.bufnr, start-1, end-1, 1, replacement)
-                catch /Index out of bounds/
-                    call neomake#log#error('Fixing entry failed (out of bounds)')
-                endtry
-            else
-                if end > line('$')+1
-                    call neomake#log#error('Fixing entry failed (out of bounds)')
-                    return
-                endif
-
-                if start == end
-                    let lnum = start < 0 ? line('$') - start : start
-                    if append(lnum-1, replacement) == 1
-                        call neomake#log#error(printf('Failed to append line(s): %d (%d).', start, lnum), {'bufnr': bufnr})
-                    endif
-
-                else
-                    let range = end - start
-                    if range > len(replacement)
-                        let end = min([end, line('$')])
-                        silent execute start.','.end.'d_'
-                        call setline(start, replacement)
-                    else
-                        let i = 0
-                        let n = len(replacement)
-                        while i < n
-                            call setline(start + i, replacement[i])
-                            let i += 1
-                        endwhile
-                    endif
-                endif
-            endif
+            call neomake#compat#buf_set_lines(a:entry.bufnr, start, end, replacement)
 
         " elseif action ==# 'append'
         "     let [lnum, lines] = args
@@ -134,13 +101,7 @@ function! neomake#fix#entry(action, entry) abort
         " Related: https://github.com/neomake/neomake/pull/1776
         elseif action ==# 'append_to_line'
             let [lnum, append] = args
-
-            if exists('*nvim_buf_get_lines')
-                let old = nvim_buf_get_lines(a:entry.bufnr, lnum-1, lnum, 1)[0]
-            else
-                let old = getline(lnum)
-            endif
-
+            let old = neomake#compat#buf_get_lines(a:entry.bufnr, lnum, lnum+1)[0]
             let new = old . append
 
             call neomake#log#info(printf('%s: fixed %s => %s (line %d).', maker.name, string(old), string(new), lnum), {'bufnr': a:entry.bufnr})
