@@ -371,6 +371,7 @@ function! s:handle_hook(jobinfo, event, context) abort
     finally
         unlet g:neomake_hook_context
     endtry
+    return g:neomake#action_queue#processed
 endfunction
 
 function! neomake#utils#hook(event, context, ...) abort
