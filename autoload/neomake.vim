@@ -990,26 +990,27 @@ function! s:do_handle_list_display(jobinfo, height, open_val) abort
             let win_count = winnr('$')
             exe cmd
             let new_win_count = winnr('$')
-            if get(g:, 'neomake_open_list_resize_existing', 1)
-                        \ && win_count == new_win_count
+            if win_count == new_win_count
                 " No new window, adjust height eventually.
-                let found = 0
-                for w in range(1, winnr('$'))
-                    if getwinvar(w, 'neomake_window_for_make_id') == a:jobinfo.make_id
-                        let found = w
-                        break
+                if get(g:, 'neomake_open_list_resize_existing', 1)
+                    let found = 0
+                    for w in range(1, winnr('$'))
+                        if getwinvar(w, 'neomake_window_for_make_id') == a:jobinfo.make_id
+                            let found = w
+                            break
+                        endif
+                    endfor
+                    if found
+                        let cmd = printf('%dresize %d', found, a:height)
+                        call neomake#log#debug(printf(
+                                    \ 'Resizing existing quickfix window: %s.',
+                                    \ cmd), a:jobinfo)
+                        exe cmd
+                    else
+                        call neomake#log#debug(
+                                    \ 'Could not find corresponding quickfix window.',
+                                    \ a:jobinfo)
                     endif
-                endfor
-                if found
-                    let cmd = printf('%dresize %d', found, a:height)
-                    call neomake#log#debug(printf(
-                                \ 'Resizing existing quickfix window: %s.',
-                                \ cmd), a:jobinfo)
-                    exe cmd
-                else
-                    call neomake#log#debug(
-                                \ 'Could not find corresponding quickfix window.',
-                                \ a:jobinfo)
                 endif
             elseif new_win_count > win_count
                 if &filetype !=# 'qf'
@@ -1028,6 +1029,10 @@ function! s:do_handle_list_display(jobinfo, height, open_val) abort
                             \ win_count, new_win_count), a:jobinfo)
             endif
             call neomake#compat#restore_prev_windows()
+        catch
+            call neomake#log#exception(printf(
+                        \ 'Error during list display for %s: %s.',
+                        \ a:jobinfo.maker.name, v:exception), a:jobinfo)
         finally
             let s:ignore_automake_events -= 1
         endtry
