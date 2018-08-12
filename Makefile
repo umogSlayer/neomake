@@ -91,7 +91,7 @@ _COVIMERAGE=$(if $(filter-out 0,$(NEOMAKE_DO_COVERAGE)),covimerage run --data-fi
 define func-run-vim
 	$(info Using: $(shell $(TEST_VIM_PREFIX) "$(TEST_VIM)" --version | head -n2))
 	$(_COVIMERAGE)$(if $(TEST_VIM_PREFIX),env $(TEST_VIM_PREFIX) ,)"$(TEST_VIM)" \
-	  $(if $(IS_NEOVIM),$(if $(_REDIR_STDOUT),--headless,),-Es -X $(if $(_REDIR_STDOUT),-s /dev/null,)) \
+	  $(if $(IS_NEOVIM),$(if $(_REDIR_STDOUT),--headless,-Es), -X $(if $(_REDIR_STDOUT),-s /dev/null,)) \
 	  --noplugin -Nu $(TEST_VIMRC) -i NONE $(VIM_ARGS) $(_REDIR_STDOUT); \
 		ret=$$?; echo RET:$$ret; exit $$ret
 endef
