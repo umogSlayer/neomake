@@ -70,7 +70,6 @@ endfunction
 " Get directory/path separator.
 " Use the same separator as with tempname().
 function! neomake#utils#Slash() abort
-    " return (!exists('+shellslash') || &shellslash) ? '/' : '\'
     return exists('+shellslash') && !&shellslash && &shellcmdflag[0] !=# '-' ? '\' : '/'
 endfunction
 
@@ -325,7 +324,8 @@ function! neomake#utils#ExpandArgs(args) abort
                 \ . '''\(\%(\\\@<!\\\)\@<!%\%(%\|\%(:[phtre.]\+\)*\)\ze\)\w\@!'', '
                 \ . '''\=(submatch(1) == "%%" ? "%" : expand(submatch(1)))'', '
                 \ . '''g'')')
-    let ret = map(ret, 'substitute(v:val, ''\v^\~\ze%(/|$)'', expand(''~''), ''g'')')
+    let home = escape(expand('~'), '\')
+    let ret = map(ret, 'substitute(v:val, ''\v^\~\ze%(/|$)'', home, ''g'')')
     return ret
 endfunction
 
@@ -444,9 +444,12 @@ endfunction
 function! neomake#utils#shellescape(arg) abort
     if a:arg =~# '^[A-Za-z0-9_/.=-]\+$'
         return a:arg
-    elseif &shell =~? 'cmd' || exists('+shellslash') && !&shellslash
-        " NOTE: this simulates what shellescape() does, but does not actually
-        " make sense.  Should only be done for "cmd" only?!
+    " elseif &shell =~? 'cmd' || (exists('+shellslash') && !&shellslash)
+    elseif neomake#utils#IsRunningWindows()
+        " NOTE: this quoting is necessary on Windows where a shell is used
+        " always, but job_start gets used with a string.
+        " " NOTE: this simulates what shellescape() does, but does not actually
+        " " make sense.  Should only be done for "cmd"?!
         return '"'.s:gsub(s:gsub(a:arg, '"', '""'), '\%', '"%"').'"'
     endif
     return shellescape(a:arg)
