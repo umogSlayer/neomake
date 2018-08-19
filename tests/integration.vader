@@ -864,10 +864,7 @@ Execute (Location list should be cleared only after first output):
     \ | endif
   augroup END
 
-  let maker_success = NeomakeTestsCommandMaker('success-maker', 'true')
-  let maker_sleep = NeomakeTestsCommandMaker('sleep-maker', 'sleep .01; echo slept')
-
-  call neomake#Make(1, [maker_success, maker_sleep])
+  call neomake#Make(1, [g:true_maker, g:sleep_maker])
 
   if neomake#has_async_support()
     NeomakeTestsWaitForNextFinishedJob
