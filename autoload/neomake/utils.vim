@@ -555,3 +555,12 @@ else
         return len(getbufline(a:bufnr, 1, '$'))
     endfunction
 endif
+
+function! neomake#utils#get_exe_args_from_shebang(bufnr) abort
+    let line1 = getline(1)
+    if line1[0:1] ==# '#!'
+        let shebang = substitute(line1[2:], '\v^\s+|\s+$', '', '')
+        return split(shebang)
+    endif
+    return []
+endfunction
