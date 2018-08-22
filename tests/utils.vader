@@ -290,6 +290,7 @@ Execute (neomake#utils#ExpandArgs):
   \ '%z',
   \ '\%',
   \ '%%',
+  \ '%%NEOMAKE_FILE%%',
   \ '%:r.o',
   \ '%:r%',
   \ '%:r% %',
@@ -306,17 +307,19 @@ Execute (neomake#utils#ExpandArgs):
   \ '~foo',
   \ '%:.',
   \ '%:,',
+  \ '%:S',
   \ ]
   let expected_args = [
   \ 'file1.ext',
   \ '.',
   \ 'file1',
-  \ 'file1',
+  \ 'file1t',
   \ '--foo=.',
   \ '%s',
   \ '%z',
   \ '\%',
   \ '%',
+  \ '%NEOMAKE_FILE%',
   \ 'file1.o',
   \ 'file1file1.ext',
   \ 'file1file1.ext file1.ext',
@@ -333,6 +336,7 @@ Execute (neomake#utils#ExpandArgs):
   \ '~foo',
   \ 'file1.ext',
   \ 'file1.ext:,',
+  \ "'file1.ext'",
   \ ]
 
   AssertEqual expected_args, neomake#utils#ExpandArgs(args)
