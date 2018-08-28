@@ -6,6 +6,9 @@ let g:loaded_neomake = 1
 command! -nargs=* -bang -bar -complete=customlist,neomake#cmd#complete_makers
             \ Neomake call neomake#Make(<bang>1, [<f-args>])
 
+command! -nargs=* -bang -complete=file
+      \ NeomakeMake call neomake#MakeCommand(<bang>0, <q-args>)
+
 " These commands are available for clarity
 command! -nargs=* -bar -complete=customlist,neomake#cmd#complete_makers
             \ NeomakeProject Neomake! <args>

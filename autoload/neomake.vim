@@ -2801,6 +2801,19 @@ function! neomake#Make(file_mode_or_options, ...) abort
     return map(copy(s:Make(options)), 'v:val.id')
 endfunction
 
+function! neomake#MakeCommand(bang, ...) abort
+    let l:shell_command = &makeprg
+    if a:0
+        let l:shell_command .= " " . a:1
+    endif
+    let maker = neomake#utils#MakerFromCommand(l:shell_command)
+    let maker.name = &makeprg
+    let maker.buffer_output = !a:bang
+    let maker.errorformat = &errorformat
+    let options = {'enabled_makers': [maker]}
+    return get(s:Make(options), 0, -1)
+endfunction
+
 function! neomake#ShCommand(bang, sh_command, ...) abort
     let maker = neomake#utils#MakerFromCommand(a:sh_command)
     let maker.name = 'sh: '.a:sh_command
